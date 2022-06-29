@@ -1,0 +1,80 @@
+package id.bafika.androidechart;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+
+import id.bafika.echartjs.ECharts;
+import id.bafika.echartjs.ItemClick;
+import id.bafika.echartjs.options.Legend;
+import id.bafika.echartjs.options.Theme;
+import id.bafika.echartjs.options.Tooltip;
+import id.bafika.echartjs.options.code.Align;
+import id.bafika.echartjs.options.code.EmphasisFocus;
+import id.bafika.echartjs.options.code.RoseType;
+import id.bafika.echartjs.options.code.Trigger;
+import id.bafika.echartjs.options.data.Data;
+import id.bafika.echartjs.options.json.GsonOption;
+import id.bafika.echartjs.options.series.Pie;
+import id.bafika.echartjs.options.style.Color;
+import id.bafika.echartjs.options.style.ItemStyle;
+import id.bafika.echartjs.options.style.itemstyle.Emphasis;
+
+public class MainActivity extends AppCompatActivity implements ItemClick {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        EditText etIndex = findViewById(R.id.etIndex);
+        Button btnHighlight = findViewById(R.id.btnHighlight);
+
+        Pie pie = new Pie("1");
+        pie.name("Data 1")
+                .selectMode(false)
+                .label(new ItemStyle().emphasis(new Emphasis().focus(EmphasisFocus.self)))
+            .radius("5%", "50%")
+            .center("50%", "60%")
+            .roseType(RoseType.area)
+            .itemStyle(new ItemStyle().borderRadius(8));
+
+        pie.data(new Data().value(40).name("Rose 1")
+            .itemStyle(new ItemStyle().color("new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset: 0, color: '#000'},{offset: 1, color: '#fff'}])")));
+        ArrayList<Color.Item> colorItem = new ArrayList<>();
+        colorItem.add(new Color.Item().offset(0).color("#000"));
+        colorItem.add(new Color.Item().offset(1).color("#fae"));
+        pie.data(new Data().value(30).name("Rose 2").itemStyle(new ItemStyle().color(Color.linearGradient(0,0,0, 1, colorItem))));
+        pie.data(new Data().value(21).name("Rose 3"));
+        pie.data(new Data().value(12).name("Rose 4"));
+        pie.data(new Data().value(11).name("Rose 5"));
+        pie.data(new Data().value(8).name("Rose 6"));
+
+        GsonOption option = new GsonOption();
+        option.title("Pie Chart")
+                .backgroundColor("#00000000")
+                .legend(new Legend().top(Align.bottom))
+                .series(pie)
+                .tooltip(new Tooltip().trigger(Trigger.item).formatter("<b>{b}</b> <br/>{c} (<i>{d}%</i>)"));
+
+
+        ECharts eCharts = findViewById(R.id.chart);
+        eCharts.setListener(this);
+        eCharts.setTheme(Theme.DARK);
+        eCharts.setOptions(option);
+        eCharts.build();
+
+        btnHighlight.setOnClickListener(v -> eCharts.setHighlight(0, Integer.parseInt(etIndex.getText().toString())));
+
+    }
+
+    @Override
+    public void index(int index) {
+        Toast.makeText(getBaseContext(), String.valueOf(index), Toast.LENGTH_SHORT).show();
+    }
+}
